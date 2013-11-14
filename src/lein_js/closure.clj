@@ -1,46 +1,46 @@
 (ns lein-js.closure
   (:import [com.google.javascript.jscomp CompilerOptions JSSourceFile
-	    CompilationLevel WarningLevel ClosureCodingConvention
-	    DiagnosticGroups CheckLevel DefaultCodingConvention]
-	   [java.nio.charset Charset])
-  (:use [clojure.string :only [lower-case]]
-	[clojure.java.io :only [file]]))
+            CompilationLevel WarningLevel ClosureCodingConvention
+            DiagnosticGroups CheckLevel DefaultCodingConvention]
+           java.nio.charset.Charset)
+  (:require [clojure.string :refer [lower-case]]
+        [clojure.java.io :refer [file]]))
 
 (def default-options
-     {:compilation-level :simple-optimizations
-      :warning-level :default
-      :coding-convention :default
-      :summary-detail :print-on-errors
-      :compilation-errors []
-      :compilation-warnings ["FILEOVERVIEW_JSDOC" "UNKNOWN_DEFINES"]
-      :compilation-ignored ["DEPRECATED" "VISIBILITY" "ACCESS_CONTROLS"
-			    "STRICT_MODULE_DEP_CHECK" "MISSING_PROPERTIES"
-			    "CHECK_TYPES"]
-      :pretty-print false
-      :print-input-delimiter false
-      :process-closure-primitives false
-      :manage-closure-deps false
-      :charset "UTF-8"})
+  {:compilation-level          :simple-optimizations
+   :warning-level              :default
+   :coding-convention          :default
+   :summary-detail             :print-on-errors
+   :compilation-errors         []
+   :compilation-warnings       ["FILEOVERVIEW_JSDOC" "UNKNOWN_DEFINES"]
+   :compilation-ignored        ["DEPRECATED" "VISIBILITY" "ACCESS_CONTROLS"
+                                "STRICT_MODULE_DEP_CHECK" "MISSING_PROPERTIES"
+                                "CHECK_TYPES"]
+   :pretty-print               false
+   :print-input-delimiter      false
+   :process-closure-primitives false
+   :manage-closure-deps        false
+   :charset                    "UTF-8"})
 
 (def compilation-levels
-     {:whitespace-only CompilationLevel/WHITESPACE_ONLY
-      :simple-optimizations CompilationLevel/SIMPLE_OPTIMIZATIONS
-      :advanced-optimizations CompilationLevel/ADVANCED_OPTIMIZATIONS})
+  {:whitespace-only        CompilationLevel/WHITESPACE_ONLY
+   :simple-optimizations   CompilationLevel/SIMPLE_OPTIMIZATIONS
+   :advanced-optimizations CompilationLevel/ADVANCED_OPTIMIZATIONS})
 
 (def warning-levels
-     {:quiet WarningLevel/QUIET
-      :default WarningLevel/DEFAULT
-      :verbose WarningLevel/VERBOSE})
+  {:quiet   WarningLevel/QUIET
+   :default WarningLevel/DEFAULT
+   :verbose WarningLevel/VERBOSE})
 
 (def coding-conventions
-     {:default DefaultCodingConvention
-      :closure ClosureCodingConvention})
+  {:default DefaultCodingConvention
+   :closure ClosureCodingConvention})
 
 (def summary-details
-     {:never-print 0
-      :print-on-errors 1
-      :print-if-type-checking 2
-      :always-print 3})
+  {:never-print            0
+   :print-on-errors        1
+   :print-if-type-checking 2
+   :always-print           3})
 
 (def diagnostic-groups (seq (.getFields DiagnosticGroups)))
 
@@ -79,19 +79,19 @@
 (defn set-diagnostics
   [compiler-options user-options]
   (doto compiler-options
-      (set-diagnostic (:compilation-errors user-options) CheckLevel/ERROR)
-      (set-diagnostic (:compilation-warnings user-options) CheckLevel/WARNING)
-      (set-diagnostic (:compilation-ignored user-options) CheckLevel/OFF)))
+    (set-diagnostic (:compilation-errors user-options) CheckLevel/ERROR)
+    (set-diagnostic (:compilation-warnings user-options) CheckLevel/WARNING)
+    (set-diagnostic (:compilation-ignored user-options) CheckLevel/OFF)))
 
 (defn make-compiler-options
   [options output]
   (let [user-options (merge default-options options)
-	compiler-options (CompilerOptions.)]
+        compiler-options (CompilerOptions.)]
     (doto compiler-options
-	(set-compilation-level ((:compilation-level user-options) compilation-levels))
-	(set-warning-level ((:warning-level user-options) warning-levels))
-	(set-compiler-option-fields user-options output)
-	(set-diagnostics user-options))))
+      (set-compilation-level ((:compilation-level user-options) compilation-levels))
+      (set-warning-level ((:warning-level user-options) warning-levels))
+      (set-compiler-option-fields user-options output)
+      (set-diagnostics user-options))))
 
 (defn write-output
   [compiler output]
@@ -100,15 +100,16 @@
 
 (defn run
   [inputs output options]
+  (println "inputs" inputs)
   (let [options (merge default-options options)
-	compiler-options (make-compiler-options options output)
-	charset (Charset/forName (:charset options))
-	inputs (map #(JSSourceFile/fromFile % charset) inputs)
-	externs (map #(JSSourceFile/fromFile % charset) (:externs options))
-	compiler (com.google.javascript.jscomp.Compiler. System/err)]
+        compiler-options (make-compiler-options options output)
+        charset (Charset/forName (:charset options))
+        inputs (map #(JSSourceFile/fromFile % charset) inputs)
+        externs (map #(JSSourceFile/fromFile % charset) (:externs options))
+        compiler (com.google.javascript.jscomp.Compiler. System/err)]
     (com.google.javascript.jscomp.Compiler/setLoggingLevel java.util.logging.Level/WARNING)
     (doto compiler
       (.compile (into-array JSSourceFile externs)
-		(into-array JSSourceFile inputs)
-		compiler-options))
+                (into-array JSSourceFile inputs)
+                compiler-options))
     (write-output compiler (file output))))
