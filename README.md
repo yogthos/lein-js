@@ -2,6 +2,12 @@
 
 lein-js is a Leiningen plugin for concatenating and compiling JavaScript files using Google's [Closure Compiler](http://code.google.com/closure/compiler/).
 
+## Installation
+
+Add the following to your project.clj :plugins:
+
+`[lein-js "0.1.2-SNAPSHOT"]`
+
 ## Usage
 
 Syntax:
@@ -178,13 +184,6 @@ The character set of the input files. See [java.nio.charset.Charset](http://java
 
 String. Default: "UTF-8"
 
-## Installation
-
-Add the following to your project.clj :dev-dependencies:
-
-`[lein-js "0.1.1-SNAPSHOT"]`
-
-Download the plugin with `lein deps`.
 
 ## License
 
