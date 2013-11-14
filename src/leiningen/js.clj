@@ -56,15 +56,8 @@
 (defn js
   ([project] (js project "devel"))
   ([project action]
-<<<<<<< HEAD
    (let [bundles (partition 2 (:bundles (:js project)))
          devel (not= action "prod")]
      (doseq [[output inputs] bundles]
        #_(println "output" output "inputs:" (parse-inputs project inputs))
        (compile-bundle inputs output project devel)))))
-=======
-     (let [bundles (partition 2 (:bundles (:js project)))
-	   devel (not= action "prod")]
-       (doseq [[output inputs] bundles]
-	 (compile-bundle inputs output project devel)))))
->>>>>>> 75f977cf594175a49bd0ed26c7765b93f621798d
