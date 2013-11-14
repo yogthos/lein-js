@@ -1,7 +1,7 @@
 (ns leiningen.js
-  (:import [java.io File])
-  (:use [clojure.java.io :only [file make-parents]])
-  (:require [lein-js.closure :as closure]))
+  (:import java.io.File)  
+  (:require [clojure.java.io :refer [file make-parents]]
+            [lein-js.closure :as closure]))
 
 (defn- add-path
   [path file]
